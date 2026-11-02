@@ -123,6 +123,7 @@ $socios = $res_s ? $res_s->fetch_all(MYSQLI_ASSOC) : [];
                                         <option value="Pagado Pendiente" <?php echo ($cuota['estado'] == 'Pagado Pendiente') ? 'selected' : ''; ?>>Pagado Pendiente</option>
                                         <option value="Anulado" <?php echo ($cuota['estado'] == 'Anulado') ? 'selected' : ''; ?>>Anulado</option>
                                     </select>
+                                    <small class="form-text text-muted">“Pagado Pendiente” significa que el pago está registrado y falta confirmarlo; no representa una deuda calculada.</small>
                                 </div>
                             </div>
 

@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__.'/sesion_segura.php';iniciar_sesion_segura();if(empty($_SESSION['usuario'])){header('Location: ./login.php');exit();}
-require_once './csrf.php';require_once './conexion.php';require_once './permisos_operador.php';require_once './bitacora_helper.php';require_once './alertify_error.php';if($_SERVER['REQUEST_METHOD']!=='POST'){header('Location: operadores_permisos.php');exit();}validar_token_csrf_post();$db=conexion();$usuario=(string)$_SESSION['usuario'];
-if(rol_operador_actual($db,$usuario)!=='administrador'){$db->close();redirigir_error_alertify('Solo un administrador puede gestionar los roles de operadores.',403);}
-$id=filter_var($_POST['id']??null,FILTER_VALIDATE_INT);$rol=is_scalar($_POST['rol']??null)?(string)$_POST['rol']:'';$roles=['administrador','cultivo','inventario','dispensacion','cuotas','consulta'];if(!$id||$id<1||!in_array($rol,$roles,true)){$db->close();redirigir_error_alertify('El operador o rol seleccionado no es válido.');}
-try{$db->begin_transaction();$actor_id=operador_id_bitacora($db,$usuario);$stmt=$db->prepare('SELECT id,usuario,rol FROM operadores WHERE id=? FOR UPDATE');$stmt->bind_param('i',$id);$stmt->execute();$objetivo=$stmt->get_result()->fetch_assoc();$stmt->close();if(!$objetivo)throw new InvalidArgumentException('El operador seleccionado ya no existe.');if($objetivo['rol']==='administrador'&&$rol!=='administrador'){$administradores=$db->query("SELECT id FROM operadores WHERE rol='administrador' FOR UPDATE");if($administradores->num_rows<=1)throw new InvalidArgumentException('No se puede quitar el rol al último administrador.');}
-$stmt=$db->prepare('UPDATE operadores SET rol=? WHERE id=?');$stmt->bind_param('si',$rol,$id);$stmt->execute();$stmt->close();registrar_evento_bitacora($db,$actor_id,'operadores','Cambio de rol','operadores',(int)$id,['rol'=>$objetivo['rol']],['rol'=>$rol]);if($objetivo['usuario']===$usuario)$_SESSION['rol']=$rol;$db->commit();$db->close();header('Location: operadores_permisos.php?success=update');exit();}catch(Throwable $e){$db->rollback();$db->close();redirigir_excepcion_alertify($e,'No se pudo actualizar el rol.');}
+require_once __DIR__ . '/sesion_segura.php'; iniciar_sesion_segura();
+if (empty($_SESSION['usuario'])) { header('Location: ./login.php'); exit(); }
+require_once __DIR__ . '/csrf.php'; require_once __DIR__ . '/alertify_error.php';
+if (($_SERVER['REQUEST_METHOD']??'')==='POST') validar_token_csrf_post();
+$id=filter_var($_POST['id']??$_GET['id']??null,FILTER_VALIDATE_INT);
+if(!$id||$id<1) { header('Location: operadores_permisos.php'); exit(); }
+header('Location: operadores_editar.php?id='.(int)$id); exit();

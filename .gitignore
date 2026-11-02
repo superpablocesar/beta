@@ -1,0 +1,8 @@
+# Configuración local con credenciales o claves privadas
+.env
+.env.*
+!.env.example
+
+# Archivos de trabajo locales
+*.log
+*.tmp

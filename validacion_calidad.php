@@ -1,4 +1,11 @@
 <?php
+function formatear_valor_calidad($valor, string $separador_decimal = ','): string
+{
+    if ($valor === null || $valor === '') return '';
+    $numero = number_format((float)$valor, 3, $separador_decimal, '');
+    return rtrim(rtrim($numero, '0'), $separador_decimal);
+}
+
 function validar_datos_control_calidad(array $post): array
 {
     $texto = static fn(string $campo): string => is_scalar($post[$campo] ?? null) ? trim((string)$post[$campo]) : '';
@@ -12,8 +19,9 @@ function validar_datos_control_calidad(array $post): array
     $fecha_obj = DateTimeImmutable::createFromFormat('!Y-m-d', $fecha);
     $valor = null;
     if ($valor_raw !== '') {
-        if (!preg_match('/^\d+(?:\.\d{1,3})?$/', $valor_raw) || (float)$valor_raw > 9999999.999) throw new InvalidArgumentException('El valor debe ser numérico y tener hasta tres decimales.');
-        $valor = (float)$valor_raw;
+        $valor_normalizado = str_replace(',', '.', $valor_raw);
+        if (!preg_match('/^\d+(?:\.\d{1,3})?$/', $valor_normalizado) || (float)$valor_normalizado > 9999999.999) throw new InvalidArgumentException('El valor debe ser numérico y tener hasta tres decimales.');
+        $valor = $valor_normalizado;
     }
     if ($cosecha_id === false || $cosecha_id < 1 || ($producto_raw !== '' && ($producto_id === false || $producto_id < 1))
         || !in_array($tipo, $tipos, true) || !$fecha_obj || $fecha_obj->format('Y-m-d') !== $fecha

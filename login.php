@@ -65,7 +65,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             redirigir_error_alertify('No se pudo comprobar reCAPTCHA. Inténtalo de nuevo más tarde.', 503);
         }
 
+        $recaptchaErrorCodes = is_array($recaptchaVerify->{'error-codes'} ?? null)
+            ? array_map(static function ($code) {
+                return preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$code);
+            }, $recaptchaVerify->{'error-codes'})
+            : [];
+        $recaptchaHostname = preg_replace('/[^a-zA-Z0-9.-]/', '', (string)($recaptchaVerify->hostname ?? ''));
+        $recaptchaAction = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($recaptchaVerify->action ?? ''));
+        $recaptchaScore = is_numeric($recaptchaVerify->score ?? null)
+            ? (string)$recaptchaVerify->score
+            : 'sin_puntuacion';
+
         if (empty($recaptchaVerify->success) || ($recaptchaVerify->score ?? 0) < 0.5) {
+            error_log('[FLOWHER] reCAPTCHA rechazado; códigos=' . implode(',', $recaptchaErrorCodes)
+                . '; hostname=' . ($recaptchaHostname ?: 'desconocido')
+                . '; action=' . ($recaptchaAction ?: 'desconocida')
+                . '; score=' . $recaptchaScore
+                . '; fuente_claves=' . ($recaptchaConfigSource ?? 'desconocida'));
             header("Location: ./login.php?error=2");
             exit();
         }
@@ -174,13 +190,22 @@ if (!$es_entorno_local && (empty($siteKey) || empty($secretKey))) {
             });
 
             // 2. Ejecutar reCAPTCHA
-            grecaptcha.execute("<?= $siteKey ?>", {action: "login"}).then(function(token) {
-                document.getElementById("g-recaptcha-response").value = token;
-                
-                // 3. Pequeño retraso para que la animación se complete y enviamos
-                setTimeout(function() {
+            grecaptcha.ready(function() {
+                grecaptcha.execute("<?= $siteKey ?>", {action: "login"}).then(function(token) {
+                    if (typeof token !== "string" || token.length < 100) {
+                        throw new Error("Token de reCAPTCHA vacío o incompleto");
+                    }
+                    document.getElementById("g-recaptcha-response").value = token;
                     document.getElementById("loginForm").submit();
-                }, 400); 
+                }).catch(function(error) {
+                    console.error("No se pudo generar el token de reCAPTCHA", error);
+                    if (window.alertify && typeof window.alertify.error === "function") {
+                        window.alertify.error("No se pudo validar reCAPTCHA. Recarga la página e inténtalo nuevamente.");
+                    }
+                    document.body.style.overflow = "auto";
+                    $(".ui-loader").fadeOut();
+                    $(".ui-loader-bg").fadeOut().addClass("sale");
+                });
             });
             <?php endif; ?>
         }

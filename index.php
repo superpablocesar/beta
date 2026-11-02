@@ -12,11 +12,12 @@ if (empty($_SESSION["usuario"])) {
 $operador = $_SESSION["usuario"];
 
 require_once "./conexion.php";
+require_once __DIR__ . '/permisos_operador.php';
 $conexion = conexion();
-
-$sql = "SELECT id, usuario FROM operadores";
-$result = $conexion->query($sql);
-$operadores = $result->fetch_all(MYSQLI_ASSOC);
+$rol_actual = (string)($_SESSION['rol'] ?? 'consulta');
+$operador_id_actual = isset($_SESSION['operador_id']) ? (int)$_SESSION['operador_id'] : null;
+$modulos_consultables = modulos_consultables_operador($conexion, $rol_actual, $operador_id_actual);
+$conexion->close();
 ?>
 
 <!DOCTYPE html>
@@ -31,6 +32,7 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
     <div class="container-lg">
         <div class="row mt-4 pt-1">
 
+<?php if (!empty($modulos_consultables["variedades"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./variedades.php">
                     <div class="card-body px-4 py-3">
@@ -47,7 +49,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["plantas_madre"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./plantas_madre.php">
                     <div class="card-body px-4 py-3">
@@ -64,7 +68,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["clones"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./clones.php">
                     <div class="card-body px-4 py-3">
@@ -81,7 +87,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["banco_semillas"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./banco_de_semillas.php">
                     <div class="card-body px-4 py-3">
@@ -98,7 +106,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["lotes"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./lotes_cultivo.php">
                     <div class="card-body px-4 py-3">
@@ -115,7 +125,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["historial_lotes"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./historial_lotes.php">
                     <div class="card-body px-4 py-3">
@@ -132,7 +144,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["cosechas"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./cosechas.php">
                     <div class="card-body px-4 py-3">
@@ -149,7 +163,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["inventario"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./inventario_derivado.php">
                     <div class="card-body px-4 py-3">
@@ -166,7 +182,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["movimientos_inventario"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./movimientos_inventario.php">
                     <div class="card-body px-4 py-3">
@@ -181,7 +199,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["socios"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./socios.php">
                     <div class="card-body px-4 py-3">
@@ -198,7 +218,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["dispensacion"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./dispensacion.php">
                     <div class="card-body px-4 py-3">
@@ -215,7 +237,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["cuotas"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./cuotas.php">
                     <div class="card-body px-4 py-3">
@@ -232,7 +256,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["calidad"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./control_calidad.php">
                     <div class="card-body px-4 py-3">
@@ -242,11 +268,13 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                                 <i class="fad fa-medal my-2 ui-text"></i>
                             </span>
                         </div>
-                        <div class="lh-sm pt-2"><div class="card-title fs-5 ui-text ui-f-500 mb-0"><span>Control de calidad</span></div><div class="card-text fs-6 ui-text ui-f-700 mb-2"><small>Inspecciones de cosechas y productos</small></div></div>
+                        <div class="lh-sm pt-2"><div class="card-title fs-5 ui-text ui-f-500 mb-0"><span>Control de calidad</span></div><div class="card-text fs-6 ui-text ui-f-700 mb-2"><small>Inspección de estandares</small></div></div>
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["tareas"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./tareas_cultivo.php">
                     <div class="card-body px-4 py-3">
@@ -267,7 +295,9 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
+<?php if (!empty($modulos_consultables["reportes"])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./reportes.php">
                     <div class="card-body px-4 py-3">
@@ -284,6 +314,7 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
+<?php endif; ?>
 
             <?php if (($_SESSION['rol'] ?? '') === 'administrador'): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
@@ -297,15 +328,17 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                         </div>
                         <div class="lh-sm pt-2">
                             <div class="card-title fs-5 ui-text ui-f-500 mb-0">
-                                <span>Operadores y permisos</span>
+                                <span>Operadores</span>
                             </div>
                             <div class="card-text fs-6 ui-text ui-f-700 mb-2">
-                                <small>Asignar roles de acceso</small>
+                                <small>Crear operadores y asignar módulos</small>
                             </div>
                         </div>
                     </div>
                 </a>
             </div>
+            <?php endif; ?>
+            <?php if (!empty($modulos_consultables['bitacora'])): ?>
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mb-md-3 position-relative">
                 <a class="card ui-card" href="./bitacora.php">
                     <div class="card-body px-4 py-3">
@@ -326,7 +359,7 @@ $operadores = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </a>
             </div>
-            <?php endif; ?>
+<?php endif; ?>
 
         </div>
     </div>
