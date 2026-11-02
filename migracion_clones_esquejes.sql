@@ -1,0 +1,25 @@
+-- Seguimiento individual de clones producidos por una extracción de planta madre.
+CREATE TABLE IF NOT EXISTS clones_esquejes (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    extraccion_madre_id INT(11) NOT NULL,
+    codigo_clon VARCHAR(32) NOT NULL,
+    fecha_corte DATE NOT NULL,
+    fecha_enraizado DATE DEFAULT NULL,
+    estado ENUM('Cortado','Enraizando','Enraizado','Trasplantado','Descartado') NOT NULL DEFAULT 'Cortado',
+    ubicacion_actual VARCHAR(100) DEFAULT NULL,
+    lote_cultivo_id INT(11) DEFAULT NULL,
+    observaciones VARCHAR(255) DEFAULT NULL,
+    created_by INT(11) NOT NULL,
+    updated_by INT(11) DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_clones_codigo (codigo_clon),
+    KEY idx_clones_extraccion (extraccion_madre_id),
+    KEY idx_clones_estado (estado),
+    KEY idx_clones_lote (lote_cultivo_id),
+    CONSTRAINT fk_clones_extraccion FOREIGN KEY (extraccion_madre_id) REFERENCES extracciones_madre (id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_clones_lote FOREIGN KEY (lote_cultivo_id) REFERENCES lotes_cultivo (id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_clones_created_by FOREIGN KEY (created_by) REFERENCES operadores (id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_clones_updated_by FOREIGN KEY (updated_by) REFERENCES operadores (id) ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
